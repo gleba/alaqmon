@@ -1,0 +1,5 @@
+{
+  "watch": ["src-srv","tests"],
+  "ext": "ts",
+  "exec": "node server.dev"
+}
