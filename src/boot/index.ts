@@ -1,68 +1,45 @@
-// import io from 'socket.io-client';
-// const socket = io('http://localhost:8778');
-//
-// socket.on('sessions',v=>{
-//   console.log('sessions', v)
-// })
-//
-//
-//
+
+import Vue from "vue";
+
+import {A, ISens, LaSens} from "lasens";
+
+import {LaVue, LaVueCO} from "lasens/vue";
+import {state} from "./modules/rawdata";
+import {session} from "./modules/session";
 
 
-import PouchDB from 'pouchdb';
-
-// const p = require('pouchdb')
-// console.log(p)
-// console.log("???")
-
-// const db = new PouchDB('http://localhost:8778');
 
 
-const db = new PouchDB('http://localhost:3000/xx',{
-  ajax:{
-    withCredentials:false
+const modules = {
+  rawdata: state, session
+}
+
+
+
+export type FStore = ISens<typeof modules>
+export const frontStore = LaSens(modules)
+const laVue = LaVue(frontStore)
+export const {flows} = frontStore
+frontStore.renew()
+Vue.use(laVue)
+flows.session
+
+declare module "vue/types/vue" {
+  interface Vue {
+    $a: boolean;
   }
-});
 
-console.log(db)
-
-fetch('http://localhost:3000/xx').then(x=>{
-  // console.log({x})
-  x.json().then(v=>{
-    console.log(v)
-    db.info().then(function (info) {
-      console.log("i",info);
-    }).catch(e=>{
-      console.log({e})
-    })
-
-  })
-
-})
-
-//
-//
-
-// db.allDocs().then(x=>{
-//   console.log("x",x)
-// }).catch(e=>{
-//   console.log({e})
-// }).finally(()=>{
-//   console.log("f")
-// })
-// console.log("?")
+  interface VueConstructor {
+    $a: boolean;
+  }
+}
 
 
-// var changes = db.changes({
-//   since: 'now',
-//   live: true,
-//   include_docs: true
-// }).on('change', function(change) {
-//   // handle change
-//   console.log("handle change", change)
-//
-// }).on('complete', function(info) {
-//   console.log("handle complete", info)
-// }).on('error', function (err) {
-//   console.log(err);
-// });
+
+declare module "vue/types/options" {
+
+  interface ComponentOptions<V extends Vue> {
+    use?: LaVueCO<FStore>
+  }
+}
+

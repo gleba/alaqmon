@@ -9,7 +9,8 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "noImplicitAny": false,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "strictPropertyInitialization": false
   },
   "exclude": ["node_modules"]
 }

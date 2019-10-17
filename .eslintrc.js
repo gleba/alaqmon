@@ -6,26 +6,19 @@ module.exports = {
     // Base ESLint recommended rules
     'eslint:recommended',
 
-    // ESLint typescript rules
-    // See https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#usage
-    'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
-
-    // `plugin:vue/essential` by default, consider switching to `plugin:vue/strongly-recommended`
-    //  or `plugin:vue/recommended` for stricter rules.
-    // See https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
     'plugin:vue/essential',
 
-    // Usage with Prettier, provided by 'eslint-config-prettier'.
-    // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#usage-with-prettier
+
     'prettier',
+
     'prettier/@typescript-eslint',
     'prettier/vue'
+
   ],
 
   plugins: [
     // Required to apply rules which need type information
-    '@typescript-eslint',
+    // '@typescript-eslint',
     // Required to lint *.vue files
     // See https://eslint.vuejs.org/user-guide/#why-doesn-t-it-work-on-vue-file
     'vue'
@@ -56,9 +49,10 @@ module.exports = {
 
   // add your custom rules here
   rules: {
+    // "indent": "off",
     'prefer-promise-reject-errors': 'off',
     quotes: ['warn', 'single'],
-    '@typescript-eslint/indent': ['warn', 2],
+    // '@typescript-eslint/indent': ['error', 0],
 
     // allow console.log during development only
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',

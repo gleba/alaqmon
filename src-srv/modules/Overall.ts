@@ -1,46 +1,76 @@
-import {XStore} from '../storage';
-import {LogHook} from "alak";
+import {BStore} from '../storage';
 import {La} from "lasens";
+import {LogHook} from "alak";
+
 
 export interface LogSession {
   sid: string
   agent: string
+  browser: {
+    name: string,
+    version: string
+  }
   online: boolean
   updatedAt: number
+}
+
+export interface LogEvent extends LogHook {
+  eid: string | number
 }
 
 interface SessionsBySid {
   [v: string]: LogSession
 }
+
 interface LogsBySid {
-  [v: string]: LogHook[]
+  [v: string]: LogEvent[]
 }
 
 export class OverallModule {
-  public sessions: SessionsBySid = {};
-  public logs: LogsBySid = {};
+  sessions: SessionsBySid = {};
+  logs: LogsBySid = {};
+  values = {}
 
-  public actions({f}:La<OverallModule>, {dynamique}: XStore) {
+  actions({f}: La<OverallModule>, {dynamique}: BStore) {
     return {
-      newSession({sid, agent}){
-        // f.sessions.mutate(v=>{
-        //   v[sid] = v
-        //   return v
-        // })
+      newSession({sid, agent, browser}) {
+        f.sessions.mutate(v => {
+          v[sid] = {
+            agent,
+            sid,
+            browser,
+            updatedAt: Date.now(),
+            online: true
+          }
+          return v
+        })
         console.log(sid, agent)
-
       },
-      hook(hook:LogHook, sid:string) {
+      offline(sid: string) {
+        f.sessions.mutate(v => {
+          v[sid].online = false
+          return v
+        })
+      },
+      hook(hook: LogHook, sid: string) {
         let logs = f.logs.value[sid]
         if (!logs) logs = []
-        logs.push(hook)
-        f.logs.mutate(v=>{
+        let eid = sid + hook.uid + Math.random()
+        console.log(hook.type, hook.uid, hook.value, ":", hook.context)
+        if (hook.value) {
+          f.values.mutate(v => {
+            v[eid] = hook.value
+            delete hook.value
+            return v
+          })
+        }
+        logs.push(Object.assign(hook, {eid}))
+        f.logs.mutate(v => {
           v[sid] = logs
           return v
         })
-        dynamique.ClientController.broadcast.actions.send(hook)
+        dynamique.ViewerController.broadcast.actions.send(hook)
       }
     }
-      ;
   }
 }

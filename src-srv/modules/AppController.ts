@@ -1,19 +1,25 @@
-import { XStore } from '../storage';
+import { BStore } from '../storage';
+var parser = require('ua-parser-js');
 
 
 export class AppController {
-  public actions({actions, dynamique}: XStore) {
+  public actions({actions, dynamique}: BStore) {
     return {
       new(ws) {
         const appSession = ws.handshake.query.asid
         const agent = ws.handshake.headers['user-agent']
-        // const session = dynamique.SessionController({sid:appSession, agent})
+        let ua = parser(agent)
 
-        actions.overall.newSession({sid:appSession, agent})
+
+        let browser = !!ua.browser.name ? ua.browser : false
+        actions.overall.newSession({sid:appSession, agent, browser})
         console.log("AppController", ws.id)
 
-        ws.on('disconnect', x => dynamique.AppController.removeById(ws.id));
-        ws.on('message', actions.overall.hook)
+        ws.on('disconnect', x => {
+          actions.overall.offline(appSession)
+          dynamique.AppController.removeById(ws.id)
+        });
+        ws.on('message', v=> actions.overall.hook(v, appSession))
       }
     };
   }
